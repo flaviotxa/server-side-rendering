@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { App } from "./App";
+import { handleModifyAnswerVotes } from "../shared/utility";
 
 let state = undefined;
 
@@ -11,22 +12,21 @@ fetch("http://localhost:3333/data")
     console.log("Got the state", state);
     render();
   });
-//ReactDOM.render(<App />, document.querySelector("#Container"));
 
-function handleModifyAnswerVotes(answerId, increment) {
-  state.answers = state.answers.map((answer) => {
-    if (answer.answerId !== answerId) {
-      return answer;
-    } else {
-      return { ...answer, upvotes: answer.upvotes + increment };
-    }
-  });
+function handleVote(answerId, increment) {
+  state.answers = handleModifyAnswerVotes(state.answers, answerId, increment);
+
+  fetch(`vote/${answerId}?increment=${increment}`)
 
   render();
 }
+//ReactDOM.render(<App />, document.querySelector("#Container"));
 
 function render() {
-  ReactDOM.hydrate(<App {...state} handleModifyAnswerVotes={handleModifyAnswerVotes} />, document.querySelector("#Container"));
+  ReactDOM.hydrate(
+    <App {...state} handleModifyAnswerVotes={handleVote} />,
+    document.querySelector("#Container")
+  );
 }
 
 // render();
